@@ -1,0 +1,33 @@
+body
+{
+    margin: 40px;
+}
+
+
+.csv-form
+{
+    width: 500px;
+}
+
+.form-control
+{
+    width: 200px;
+    float: left;
+}
+
+.btn-primary
+{
+    margin-left: 5px;
+}
+
+img
+{
+    width: 110px;
+    height: 100px;
+}
+
+thead td
+{
+    font-size: 1.1em;
+    font-weight: bolder;
+}
