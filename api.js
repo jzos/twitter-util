@@ -86,31 +86,49 @@ app.get('/loadfile', function (req, res) {
 
 });
 
+
+var a = null;
+
 app.post('/exportCSV', function (req, res) {
+
+
+    /*
+    var icheck = setInterval(test, 500);
+
+    function test()
+    {
+        if (a != null)
+        {
+            res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+            res.set('Content-Type', 'text/csv; charset=utf-8');
+            res.status(200).send(a);
+
+            console.log("jaime");
+
+            clearInterval(icheck);
+        }
+    }
+
+    */
+
+
 
     req.on('data', function (data) {
 
         var name = JSON.parse(data);
 
-        /*
-        jsonexport(name,function(err, csv){
-            if(err) return console.log(err);
-
-            fs.writeFile('file.csv', csv, function(err) {
-                if (err) throw err;
-                console.log('file saved');
-            });
-        });
-        */
-
         function json2csvCallback(err, csv) {
             if (err) throw err;
             //console.log(csv);
 
+            //a = csv;
+
+
             fs.writeFile('file.csv', csv, function(err) {
                 if (err) throw err;
                 console.log('file saved');
             });
+
 
 
         };
