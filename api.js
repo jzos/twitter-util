@@ -18,6 +18,9 @@ var csv                 = require("fast-csv");
 
 var Twitter             = require('twitter');
 
+var bodyParser          = require("body-parser");
+
+
 
 var iCheckTwitterData;
 
@@ -62,15 +65,11 @@ app.get('/getTwitter', function (req, res) {
 
 app.get('/loadfile', function (req, res) {
 
-    //console.log("param : " + req.query.csvName);
-
-
     var name = req.query.csvName;
 
     LoadCSV(name);
 
     iCheckTwitterData = setInterval(checkTwitterData,1000);
-
 
     function checkTwitterData()
     {
@@ -112,31 +111,25 @@ app.post('/exportCSV', function (req, res) {
     */
 
 
-
     req.on('data', function (data) {
 
         var name = JSON.parse(data);
 
         function json2csvCallback(err, csv) {
             if (err) throw err;
-            //console.log(csv);
 
             //a = csv;
 
-
+            // Save CSV File
             fs.writeFile('file.csv', csv, function(err) {
                 if (err) throw err;
                 console.log('file saved');
+                res.send("OK 200");
             });
-
-
 
         };
 
         converter.json2csv(name, json2csvCallback);
-
-
-
 
     });
 

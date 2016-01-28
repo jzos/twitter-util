@@ -11,7 +11,7 @@
 
             $.ajax({
                 headers: {
-                    "Content-Type": "Content-Type; application/json"
+                    "Content-Type": "Content-Type; application/x-www-form-urlencoded"
                 },
                 method: methodType,
                 url: url,
@@ -101,20 +101,16 @@
             var arrayResult = [];
 
             $('#twitter_table_data tbody tr').each(function () {
-                //processing this row
-                //how to process each cell(table td) where there is checkbox
-
-                //console.log("Each Row");
 
                 var jsonTemp = {};
 
-
                 $(this).find('td input').each(function () {
 
-                    //console.log($(this).attr("name") + " : " + $(this).val());
-
                     var title = $(this).attr("name");
-                    var value = ($(this).val() == "" ? "N/A" : $(this).val().replace(/[^\x00-\x7F]/g, "").split("\n").join().split(",").join(""));
+
+                    // regular expression to remove commas, ascii and carriage returns
+                    // these affect the export of the csv file
+                    var value = ($(this).val() == "" ? "N/A" : $(this).val().replace(/[^\x00-\x7F]|(\r|\n)|[,]/g, ""));
 
                     jsonTemp[title] = value;
 
@@ -122,10 +118,6 @@
 
 
                 $(this).find('td option:selected').each(function () {
-
-                    //console.log($(this).val());
-
-                    //console.log("title :" + $(this).parent().attr("name") + " : " + $(this).val());
 
                     var title = $(this).parent().attr("name");
                     var value = $(this).val();
@@ -137,8 +129,6 @@
                 arrayResult.push(jsonTemp);
 
             });
-
-            //var data = {csvData : arrayResult};
 
             request("exportCSV", JSON.stringify(arrayResult), "POST", "json", null, null);
 
