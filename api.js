@@ -34,6 +34,7 @@ var objTwitterData              = null;
 
 
 app.use('/downloads', serveIndex(__dirname + '/downloads'));
+app.use('/csv', serveIndex(__dirname + '/csv'));
 
 
 app.get('/',function(req,res){
@@ -122,6 +123,8 @@ app.post('/exportCSV', function (req, res) {
     */
 
 
+
+    /*
     req.on('data', function (data) {
 
         var name = JSON.parse(data);
@@ -148,6 +151,47 @@ app.post('/exportCSV', function (req, res) {
         converter.json2csv(name, json2csvCallback);
 
     });
+    */
+
+   var body;
+
+    req.on('data', function(chunk) {
+        body = chunk;
+
+    });
+
+    req.on('end', function() {
+
+
+        var name = JSON.parse(body);
+
+        function json2csvCallback(err, csv) {
+            if (err) throw err;
+
+            // Save CSV File
+
+            var sCSVFilename = sFileName + (iPageNo-1);
+
+            console.log("Filename : " + sCSVFilename);
+
+            fs.writeFile('downloads/' + sCSVFilename + '.csv', csv, function(err) {
+                if (err) throw err;
+                console.log('file saved');
+                res.send("OK 200");
+            });
+
+        };
+
+        converter.json2csv(name, json2csvCallback);
+
+
+
+
+
+
+    });
+
+
 
 });
 
@@ -179,7 +223,7 @@ function LoadCSV(sCSVFileName)
 {
 
     csv
-        .fromPath(sCSVFileName + ".csv")
+        .fromPath("csv/" + sCSVFileName + ".csv")
         .on("data", function(data){
 
             arrayUsers.push(data[0]);
@@ -187,7 +231,7 @@ function LoadCSV(sCSVFileName)
         })
         .on("end", function(){
 
-            saveLog("csv file loaded","none");
+            //saveLog("csv file loaded","none");
 
             iTotalPages =  Math.ceil(arrayUsers.length/100);
 
@@ -199,18 +243,12 @@ function LoadCSV(sCSVFileName)
 function getTwitterHandles()
 {
 
-    console.log("getTwitterHandles : Range: " + (2 + ((iPageNo-1)*100)));
-
-
     var params  = {'screen_name': arrayUsers.showRangeAsString(2 + ((iPageNo-1)*100), 101 + ((iPageNo-1)*100))};
     var path    = "users/lookup";
 
     client.get(path, params, twitterResponse);
 
     iPageNo += 1;
-    console.log("page no : " + iPageNo);
-
-
 
 }
 
@@ -225,7 +263,7 @@ function twitterResponse(error, response)
 
     }
     else {
-        saveLog("Error : " + error[0].message + " Code : " + error[0].code, "Error : " + error[0].message + " Code : " + error[0].code)
+        //saveLog("Error : " + error[0].message + " Code : " + error[0].code, "Error : " + error[0].message + " Code : " + error[0].code)
 
     }
 }

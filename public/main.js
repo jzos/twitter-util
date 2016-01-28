@@ -11,7 +11,7 @@
 
             $.ajax({
                 headers: {
-                    "Content-Type": "Content-Type; application/x-www-form-urlencoded"
+                    "Content-Type": "Content-Type; application/jso"
                 },
                 method: methodType,
                 url: url,
