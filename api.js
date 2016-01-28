@@ -5,14 +5,9 @@
 var express             = require('express');
 var app                 = express();
 var path                = require("path");
-// jsonexport
 var jsonexport          = require('jsonexport');
-// filesystem
 var fs                  = require('fs');
-// json to csv covertor
 var converter           = require('json-2-csv');
-// logging
-var winston             = require('winston');
 var csv                 = require("fast-csv");
 var Twitter             = require('twitter');
 var serveIndex          = require('serve-index');
@@ -26,7 +21,7 @@ var arrayUsers                  = [];
 var arrayImages                 = [];
 var arrayUsersData              = [];
 var arrayUserTwitterData        = [];
-var iPageNo                     = 1;
+var iPageNo;
 var iTotalPages;
 
 
@@ -37,27 +32,21 @@ app.use('/downloads', serveIndex(__dirname + '/downloads'));
 app.use('/csv', serveIndex(__dirname + '/csv'));
 
 
-app.get('/',function(req,res){
-    res.sendFile(path.join(__dirname+'/index.html'));
-    //__dirname : It will resolve to your project folder.
-});
 
-app.get('/about',function(req,res){
-    res.sendFile(path.join(__dirname+'/client.html'));
+app.get('/',function(req,res){
+    res.sendFile(path.join(__dirname +'/index.html'));
+    //__dirname : It will resolve to your project folder.
 });
 
 
 app.get('/getTwitter', function (req, res) {
-
 
     if (iPageNo <= iTotalPages)
     {
 
         getTwitterHandles();
 
-
         var iCheckTwitterData = setInterval(checkTwitterData,1000);
-
 
         function checkTwitterData()
         {
@@ -68,18 +57,19 @@ app.get('/getTwitter', function (req, res) {
                 clearInterval(iCheckTwitterData);
             }
         }
-
     }
-
-
-
 });
+
+
+
 
 app.get('/loadfile', function (req, res) {
 
     sFileName = req.query.csvName;
 
     LoadCSV(sFileName);
+
+    iPageNo = 1;
 
     var iCheckTwitterDataLoad = setInterval(checkTwitterData,1000);
 
@@ -92,8 +82,6 @@ app.get('/loadfile', function (req, res) {
             clearInterval(iCheckTwitterDataLoad);
         }
     }
-
-
 
 });
 
@@ -154,13 +142,7 @@ app.post('/exportCSV', function (req, res) {
 
         converter.json2csv(csv, json2csvCallback);
 
-
-
-
     });
-
-
-
 
 });
 
@@ -191,6 +173,9 @@ var client = new Twitter({
 function LoadCSV(sCSVFileName)
 {
 
+
+    arrayUsers = [];
+
     csv
         .fromPath("csv/" + sCSVFileName + ".csv")
         .on("data", function(data){
@@ -199,8 +184,6 @@ function LoadCSV(sCSVFileName)
 
         })
         .on("end", function(){
-
-            //saveLog("csv file loaded","none");
 
             iTotalPages =  Math.ceil(arrayUsers.length/100);
 
@@ -217,8 +200,6 @@ function getTwitterHandles()
 
     client.get(path, params, twitterResponse);
 
-    iPageNo += 1;
-
 }
 
 
@@ -230,9 +211,11 @@ function twitterResponse(error, response)
         var jsonTemp    = {twitter : response, currentPage : iPageNo, totalpages : iTotalPages};
         objTwitterData  = jsonTemp;
 
+        iPageNo += 1;
+
     }
     else {
-        //saveLog("Error : " + error[0].message + " Code : " + error[0].code, "Error : " + error[0].message + " Code : " + error[0].code)
+        // Log errors
 
     }
 }
@@ -251,35 +234,3 @@ Array.prototype.showRangeAsString = function(iStartAmt, iFinishAmt){
 
     return mystring;
 }
-
-
-
-
-
-////////////////////////////////////////////////
-//
-// Compares two arrays shows the differences
-//
-////////////////////////////////////////////////
-
-function validateTwitterUsers(a, b) {
-
-    var seen = [], diff = [];
-    for ( var i = 0; i < b.length; i++)
-        seen[b[i]] = true;
-    for ( var i = 0; i < a.length; i++)
-        if (!seen[a[i]])
-            diff.push(a[i]);
-    return diff;
-}
-
-
-
-function saveLog(sLog, sErrorMessage)
-{
-    winston.add(winston.transports.File, { filename: 'log/somefile.log' });
-    winston.log('info', sLog);
-    winston.error(sErrorMessage);
-}
-
-

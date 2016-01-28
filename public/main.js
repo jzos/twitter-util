@@ -33,6 +33,10 @@
 
                 $(".csv-form").hide();
                 $("#twitter_table_data").show();
+
+                $("#page_no").text(response.currentPage);
+                $("#page_total").text(response.totalpages);
+
                 drawTable(response);
 
             }
@@ -49,6 +53,9 @@
             request("getTwitter",null, "GET", null, load_response, load_error);
 
             function load_response(response) {
+
+                $("#page_no").text(response.currentPage);
+                $("#page_total").text(response.totalpages);
 
                 $("#twitter_table_data tbody").empty();
                 drawTable(response);

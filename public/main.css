@@ -35,4 +35,10 @@ thead td
 .downloadLink
 {
     float: right;
+    line-height: 32px;
+}
+
+.paging
+{
+    display: inline-table;
 }
