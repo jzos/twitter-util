@@ -17,11 +17,13 @@
     "json-2-csv": "2.0.12",
     "winston" : "2.1.1",
     "fast-csv": "1.0.0",
-    "twitter" : "1.2.5"
+    "twitter" : "1.2.5",
+    "serve-index" : "1.7.3"
   },
   "keywords": [
     "experiments",
-    "prototypes"
+    "prototypes",
+    "twitterAPI"
   ],
   "author": "Jaime Cavazos",
   "license": "ISC",

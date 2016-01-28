@@ -13,16 +13,28 @@ var fs                  = require('fs');
 var converter           = require('json-2-csv');
 // logging
 var winston             = require('winston');
-
 var csv                 = require("fast-csv");
-
 var Twitter             = require('twitter');
-
-var bodyParser          = require("body-parser");
-
+var serveIndex          = require('serve-index');
 
 
+
+var sFileName                   = "";
 var iCheckTwitterData;
+var csvFile;
+var arrayUsers                  = [];
+var arrayImages                 = [];
+var arrayUsersData              = [];
+var arrayUserTwitterData        = [];
+var iPageNo                     = 1;
+var iTotalPages;
+
+
+var objTwitterData              = null;
+
+
+app.use('/downloads', serveIndex(__dirname + '/downloads'));
+
 
 app.get('/',function(req,res){
     res.sendFile(path.join(__dirname+'/index.html'));
@@ -42,7 +54,8 @@ app.get('/getTwitter', function (req, res) {
 
         getTwitterHandles();
 
-        iCheckTwitterData = setInterval(checkTwitterData,1000);
+
+        var iCheckTwitterData = setInterval(checkTwitterData,1000);
 
 
         function checkTwitterData()
@@ -50,7 +63,7 @@ app.get('/getTwitter', function (req, res) {
             if (objTwitterData != null)
             {
                 res.send(objTwitterData);
-                iPageNo++;
+                objTwitterData  = null;
                 clearInterval(iCheckTwitterData);
             }
         }
@@ -59,25 +72,23 @@ app.get('/getTwitter', function (req, res) {
 
 
 
-
-
 });
 
 app.get('/loadfile', function (req, res) {
 
-    var name = req.query.csvName;
+    sFileName = req.query.csvName;
 
-    LoadCSV(name);
+    LoadCSV(sFileName);
 
-    iCheckTwitterData = setInterval(checkTwitterData,1000);
+    var iCheckTwitterDataLoad = setInterval(checkTwitterData,1000);
 
     function checkTwitterData()
     {
         if (objTwitterData != null)
         {
             res.send(objTwitterData);
-            iPageNo++;
-            clearInterval(iCheckTwitterData);
+            objTwitterData = null;
+            clearInterval(iCheckTwitterDataLoad);
         }
     }
 
@@ -121,7 +132,12 @@ app.post('/exportCSV', function (req, res) {
             //a = csv;
 
             // Save CSV File
-            fs.writeFile('file.csv', csv, function(err) {
+
+            var sCSVFilename = sFileName + (iPageNo-1);
+
+            console.log("Filename : " + sCSVFilename);
+
+            fs.writeFile('downloads/' + sCSVFilename + '.csv', csv, function(err) {
                 if (err) throw err;
                 console.log('file saved');
                 res.send("OK 200");
@@ -140,26 +156,13 @@ app.post('/exportCSV', function (req, res) {
 
 
 app.use('/public', express.static(__dirname + '/public'));
+app.use('/downloads', express.static(__dirname + '/downloads'));
 
 app.listen(process.env.PORT || 5000);
 
 console.log("Running at Port 5000");
 
 
-
-
-
-
-var csvFile;
-var arrayUsers                  = [];
-var arrayImages                 = [];
-var arrayUsersData              = [];
-var arrayUserTwitterData        = [];
-var iPageNo;
-var iTotalPages;
-
-
-var objTwitterData              = null;
 
 var client = new Twitter({
     consumer_key: 'wrYF9hApsNGs8OgU3MyQw',
@@ -175,12 +178,7 @@ var client = new Twitter({
 function LoadCSV(sCSVFileName)
 {
 
-    iPageNo = 1;
-
-
-
     csv
-        //.fromPath("cluster1_total_segments.csv")
         .fromPath(sCSVFileName + ".csv")
         .on("data", function(data){
 
@@ -201,10 +199,18 @@ function LoadCSV(sCSVFileName)
 function getTwitterHandles()
 {
 
+    console.log("getTwitterHandles : Range: " + (2 + ((iPageNo-1)*100)));
+
+
     var params  = {'screen_name': arrayUsers.showRangeAsString(2 + ((iPageNo-1)*100), 101 + ((iPageNo-1)*100))};
     var path    = "users/lookup";
 
     client.get(path, params, twitterResponse);
+
+    iPageNo += 1;
+    console.log("page no : " + iPageNo);
+
+
 
 }
 

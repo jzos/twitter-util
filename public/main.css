@@ -31,3 +31,8 @@ thead td
     font-size: 1.1em;
     font-weight: bolder;
 }
+
+.downloadLink
+{
+    float: right;
+}

@@ -52,7 +52,7 @@
 
             function load_response(response) {
 
-                $("#twitter_table_data tbody").html("");
+                $("#twitter_table_data tbody").empty();
                 drawTable(response);
 
             }
