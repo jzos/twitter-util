@@ -98,7 +98,7 @@ app.get('/loadfile', function (req, res) {
 });
 
 
-var a = null;
+var objFileUpload = null;
 
 app.post('/exportCSV', function (req, res) {
 
@@ -108,11 +108,11 @@ app.post('/exportCSV', function (req, res) {
 
     function test()
     {
-        if (a != null)
+        if (objFileUpload != null)
         {
             res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
             res.set('Content-Type', 'text/csv; charset=utf-8');
-            res.status(200).send(a);
+            res.status(200).send(objFileUpload);
 
             console.log("jaime");
 
@@ -123,50 +123,20 @@ app.post('/exportCSV', function (req, res) {
     */
 
 
-
-    /*
-    req.on('data', function (data) {
-
-        var name = JSON.parse(data);
-
-        function json2csvCallback(err, csv) {
-            if (err) throw err;
-
-            //a = csv;
-
-            // Save CSV File
-
-            var sCSVFilename = sFileName + (iPageNo-1);
-
-            console.log("Filename : " + sCSVFilename);
-
-            fs.writeFile('downloads/' + sCSVFilename + '.csv', csv, function(err) {
-                if (err) throw err;
-                console.log('file saved');
-                res.send("OK 200");
-            });
-
-        };
-
-        converter.json2csv(name, json2csvCallback);
-
-    });
-    */
-
-   var body;
+    var body = '';
 
     req.on('data', function(chunk) {
-        body = chunk;
-
+        body += chunk;
     });
 
     req.on('end', function() {
+        var csv = JSON.parse(body);
 
-
-        var name = JSON.parse(body);
 
         function json2csvCallback(err, csv) {
             if (err) throw err;
+
+            //objTwitterData = csv;
 
             // Save CSV File
 
@@ -182,10 +152,13 @@ app.post('/exportCSV', function (req, res) {
 
         };
 
-        converter.json2csv(name, json2csvCallback);
+        converter.json2csv(csv, json2csvCallback);
+
+
 
 
     });
+
 
 
 

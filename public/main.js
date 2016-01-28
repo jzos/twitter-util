@@ -10,9 +10,7 @@
         function request(url, data, methodType, contentType, response, error) {
 
             $.ajax({
-                headers: {
-                    "Content-Type": "Content-Type; application/jso"
-                },
+                contentType: "application/json; charset=utf-8",
                 method: methodType,
                 url: url,
                 dataType: contentType,
