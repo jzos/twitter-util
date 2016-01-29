@@ -2,6 +2,13 @@
  * Created by jaimemac on 1/20/16.
  */
 
+
+/****
+ *
+  * Todo : Rewrite the code using sails.js in MVC
+ */
+
+
 var express             = require('express');
 var app                 = express();
 var path                = require("path");
@@ -24,8 +31,23 @@ var arrayUserTwitterData        = [];
 var iPageNo;
 var iTotalPages;
 
-
+//
 var objTwitterData              = null;
+
+
+
+/***
+ *
+ * Twitter API credentials
+ */
+
+var client = new Twitter({
+    consumer_key: 'wrYF9hApsNGs8OgU3MyQw',
+    consumer_secret: 'a5i8UlzzgIJ2HHqZPg8yfQHMZGaPVj38iW9OyG3oQ',
+    access_token_key: '19669840-I4m2CWkH9jExlhCRqJMOKtdVppe9EW1ig7z7p7KZM',
+    access_token_secret: 'FaXH9kjQ16wGpmstnR5f8evN2Ov3RWfqF1bCa7Zit9IgL'
+});
+
 
 
 app.use('/downloads', serveIndex(__dirname + '/downloads'));
@@ -86,30 +108,8 @@ app.get('/loadfile', function (req, res) {
 });
 
 
-var objFileUpload = null;
 
 app.post('/exportCSV', function (req, res) {
-
-
-    /*
-    var icheck = setInterval(test, 500);
-
-    function test()
-    {
-        if (objFileUpload != null)
-        {
-            res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
-            res.set('Content-Type', 'text/csv; charset=utf-8');
-            res.status(200).send(objFileUpload);
-
-            console.log("jaime");
-
-            clearInterval(icheck);
-        }
-    }
-
-    */
-
 
     var body = '';
 
@@ -123,8 +123,6 @@ app.post('/exportCSV', function (req, res) {
 
         function json2csvCallback(err, csv) {
             if (err) throw err;
-
-            //objTwitterData = csv;
 
             // Save CSV File
 
@@ -158,16 +156,12 @@ app.listen(process.env.PORT || 5000);
 console.log("Running at Port 5000");
 
 
-
-var client = new Twitter({
-    consumer_key: 'wrYF9hApsNGs8OgU3MyQw',
-    consumer_secret: 'a5i8UlzzgIJ2HHqZPg8yfQHMZGaPVj38iW9OyG3oQ',
-    access_token_key: '19669840-I4m2CWkH9jExlhCRqJMOKtdVppe9EW1ig7z7p7KZM',
-    access_token_secret: 'FaXH9kjQ16wGpmstnR5f8evN2Ov3RWfqF1bCa7Zit9IgL'
-});
-
-
-
+/*****
+ *
+ * This loads the CSV file from the csv directory
+ * @param sCSVFileName
+ *
+ */
 
 
 function LoadCSV(sCSVFileName)
@@ -191,11 +185,19 @@ function LoadCSV(sCSVFileName)
      });
 }
 
+/*****
+ * Queries the Twitter API
+ *
+ */
 
 function getTwitterHandles()
 {
 
-    var params  = {'screen_name': arrayUsers.showRangeAsString(2 + ((iPageNo-1)*100), 101 + ((iPageNo-1)*100))};
+    /****
+     * Twitter API : https://dev.twitter.com/rest/reference/get/users/lookup
+     */
+
+    var params  = {'user_id': arrayUsers.showRangeAsString(1 + ((iPageNo-1)*100), 100 + ((iPageNo-1)*100))};
     var path    = "users/lookup";
 
     client.get(path, params, twitterResponse);
@@ -203,6 +205,12 @@ function getTwitterHandles()
 }
 
 
+/***
+ *
+ * Handles the Twitter response
+ * @param error
+ * @param response
+ */
 
 function twitterResponse(error, response)
 {
@@ -221,7 +229,14 @@ function twitterResponse(error, response)
 }
 
 
-
+/***
+ *
+ * Extends the Array object to specify a range to return
+ *
+ * @param iStartAmt
+ * @param iFinishAmt
+ * @returns {string}
+ */
 
 Array.prototype.showRangeAsString = function(iStartAmt, iFinishAmt){
 
