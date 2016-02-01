@@ -7,6 +7,16 @@
 
         $("#twitter_table_data").hide();
 
+
+        getCSVFiles();
+
+
+        function getCSVFiles()
+        {
+            request("pageCSV",null, "GET", null, load_response, load_error);
+        }
+
+
         function request(url, data, methodType, contentType, response, error) {
 
             $.ajax({
@@ -23,11 +33,11 @@
         }
 
 
-        $("#btn_loadCSV").click(function(){
+        function loadCSV(sFileName){
 
-            var data = {csvName : $("#csv_name").val()};
+            var data = {csvName : sFileName};
 
-            request("loadfile",data, "GET", null,load_response, load_error);
+            request("loadCSV",data, "GET", null,load_response, load_error);
 
             function load_response(response) {
 
@@ -44,13 +54,14 @@
             function load_error(){
 
             }
-        });
+
+        }
 
 
 
         $("#btn_loadTwitter").click(function(){
 
-            request("getTwitter",null, "GET", null, load_response, load_error);
+            request("pageCSV",null, "GET", null, load_response, load_error);
 
             function load_response(response) {
 
@@ -66,6 +77,42 @@
 
             }
         });
+
+
+        function assignDropdownEvent(){
+
+            $(".dropdown-menu li a").click(function(){
+
+                loadCSV($(this).text());
+
+            });
+
+        }
+
+
+        function getCSVFiles()
+        {
+            request("getCSVNames",null, "GET", null, load_response, load_error);
+
+            function load_response(response)
+            {
+                var $dropdown = $(".dropdown-menu");
+
+                for (var e in response)
+                {
+                    $dropdown.append("<li><a href='#'>" + response[e].file_name +  "</a></li>");
+                }
+
+                assignDropdownEvent();
+
+            }
+
+            function load_error(error)
+            {
+                console.log(error);
+            }
+
+        }
 
 
         function drawTable(data) {

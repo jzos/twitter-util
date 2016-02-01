@@ -18,7 +18,7 @@ var converter           = require('json-2-csv');
 var csv                 = require("fast-csv");
 var Twitter             = require('twitter');
 var serveIndex          = require('serve-index');
-
+var walk                = require('walk');
 
 
 var sFileName                   = "";
@@ -30,9 +30,40 @@ var arrayUsersData              = [];
 var arrayUserTwitterData        = [];
 var iPageNo;
 var iTotalPages;
-
-//
 var objTwitterData              = null;
+
+
+
+
+function getCSVFiles(callback)
+{
+    var arrayFiles                   = [];
+
+    var walker  = walk.walk('./csv', { followLinks: false });
+
+    walker.on('file', function(root, stat, next) {
+
+        var jsonTemp = {};
+
+        if (stat.name.indexOf(".") != 0) {
+
+            jsonTemp["file_name"] = stat.name.replace(".csv","");
+            arrayFiles.push(jsonTemp);
+        }
+
+        next();
+    });
+
+    walker.on('end', function() {
+        callback(arrayFiles);
+    });
+
+}
+
+
+
+
+
 
 
 
@@ -61,7 +92,7 @@ app.get('/',function(req,res){
 });
 
 
-app.get('/getTwitter', function (req, res) {
+app.get('/pageCSV', function (req, res) {
 
     if (iPageNo <= iTotalPages)
     {
@@ -84,8 +115,21 @@ app.get('/getTwitter', function (req, res) {
 
 
 
+app.get('/getCSVNames', function (req, res) {
 
-app.get('/loadfile', function (req, res) {
+    getCSVFiles(callback);
+
+    function callback(files)
+    {
+        res.send(files);
+    }
+
+});
+
+
+
+
+app.get('/loadCSV', function (req, res) {
 
     sFileName = req.query.csvName;
 
