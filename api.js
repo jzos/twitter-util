@@ -218,7 +218,7 @@ function LoadCSV(sCSVFileName)
         .fromPath("csv/" + sCSVFileName + ".csv")
         .on("data", function(data){
 
-            arrayUsers.push(data[0]);
+            arrayUsers.push(data[1]);
 
         })
         .on("end", function(){
@@ -241,7 +241,7 @@ function getTwitterHandles()
      * Twitter API : https://dev.twitter.com/rest/reference/get/users/lookup
      */
 
-    var params  = {'user_id': arrayUsers.showRangeAsString(1 + ((iPageNo-1)*100), 100 + ((iPageNo-1)*100))};
+    var params  = {'user_id': arrayUsers.showRangeAsString(2 + ((iPageNo-1)*100), 101 + ((iPageNo-1)*100))};
     var path    = "users/lookup";
 
     client.get(path, params, twitterResponse);
